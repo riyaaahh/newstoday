@@ -2,13 +2,20 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
 import { ArticleBody } from '@/components/ArticleBody'
+import { ArticleCard } from '@/components/ArticleCard'
 import { MediaImage } from '@/components/MediaImage'
 import { NewsArticleJsonLd } from '@/components/NewsArticleJsonLd'
+import { ShareButtons } from '@/components/ShareButtons'
 import { SiteHeader } from '@/components/SiteHeader'
 import { formatDate, t } from '@/lib/i18n'
-import { localePath, otherLocale, type Locale } from '@/lib/locale'
-import { getArticle, getArticleAlternatePaths, getCategories } from '@/lib/queries'
-import type { Category, Media, User } from '@/payload-types'
+import { absoluteUrl, localePath, otherLocale, type Locale } from '@/lib/locale'
+import {
+  getArticle,
+  getArticleAlternatePaths,
+  getCategories,
+  getRelatedArticles,
+} from '@/lib/queries'
+import type { Category, Media, Tag, User } from '@/payload-types'
 
 export async function ArticleView({
   locale,
@@ -22,9 +29,10 @@ export async function ArticleView({
   const article = await getArticle(locale, categorySlug, slug)
   if (!article) notFound()
 
-  const [categories, alt] = await Promise.all([
+  const [categories, alt, related] = await Promise.all([
     getCategories(locale),
     getArticleAlternatePaths(article.id),
+    getRelatedArticles(locale, article),
   ])
   const other = otherLocale(locale)
   const category = typeof article.category === 'object' ? (article.category as Category) : null
@@ -33,6 +41,7 @@ export async function ArticleView({
   const authors = (article.authors ?? []).filter(
     (a): a is User => typeof a === 'object' && a !== null,
   )
+  const tags = (article.tags ?? []).filter((tg): tg is Tag => typeof tg === 'object' && tg !== null)
 
   return (
     <>
@@ -50,7 +59,15 @@ export async function ArticleView({
           <div className="article-meta">
             {authors.length > 0 && (
               <span>
-                {t(locale, 'by')} {authors.map((a) => a.name).join(', ')}
+                {t(locale, 'by')}{' '}
+                {authors.map((a, i) => (
+                  <span key={a.id}>
+                    {i > 0 && ', '}
+                    <Link className="author-link" href={localePath(locale, `/author/${a.slug}`)}>
+                      {a.name}
+                    </Link>
+                  </span>
+                ))}
               </span>
             )}
             {article.publishedAt && (
@@ -64,7 +81,34 @@ export async function ArticleView({
             </figure>
           )}
           <ArticleBody content={article.content} />
+
+          {tags.length > 0 && (
+            <div className="tag-list">
+              {tags.map((tg) => (
+                <Link key={tg.id} className="tag-chip" href={localePath(locale, `/tag/${tg.slug}`)}>
+                  {tg.name}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <ShareButtons
+            url={absoluteUrl(localePath(locale, path))}
+            title={article.title}
+            labels={{ share: t(locale, 'share'), copy: t(locale, 'copy'), copied: t(locale, 'copied') }}
+          />
         </article>
+
+        {related.length > 0 && (
+          <section className="related">
+            <h2 className="section-title">{t(locale, 'relatedNews')}</h2>
+            <div className="grid">
+              {related.map((a) => (
+                <ArticleCard key={a.id} locale={locale} article={a} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </>
   )

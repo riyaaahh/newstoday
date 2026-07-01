@@ -8,11 +8,11 @@ import { slugify } from '../lib/slugify'
  * Localized => each language gets its own slug (e.g. ml slug vs en slug),
  * which is what the hreflang alternates on the frontend rely on.
  */
-export const slugField = (from = 'title'): Field => ({
+export const slugField = (from = 'title', opts: { localized?: boolean } = {}): Field => ({
   name: 'slug',
   type: 'text',
   required: true,
-  localized: true,
+  localized: opts.localized ?? true,
   index: true,
   admin: {
     position: 'sidebar',

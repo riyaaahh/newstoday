@@ -33,8 +33,35 @@ const run = async () => {
     existingUsers.docs[0] ??
     (await payload.create({
       collection: 'users',
-      data: { name: 'Editor', email: 'editor@newstoday.test', password: 'password123' },
+      locale: 'ml',
+      data: {
+        name: 'അനു മോഹൻ',
+        email: 'editor@newstoday.test',
+        password: 'password123',
+        slug: 'anu-mohan',
+        title: 'സീനിയർ റിപ്പോർട്ടർ',
+        bio: 'കേരള രാഷ്ട്രീയവും കാലാവസ്ഥയും റിപ്പോർട്ട് ചെയ്യുന്നു.',
+      },
     }))
+  await payload.update({
+    collection: 'users',
+    id: user.id,
+    locale: 'en',
+    data: { name: 'Anu Mohan', title: 'Senior Reporter', bio: 'Covers Kerala politics and weather.' },
+  })
+
+  // Bilingual tag
+  const tag = await payload.create({
+    collection: 'tags',
+    locale: 'ml',
+    data: { name: 'കാലാവസ്ഥ', slug: 'kalavastha' },
+  })
+  await payload.update({
+    collection: 'tags',
+    id: tag.id,
+    locale: 'en',
+    data: { name: 'Weather', slug: 'weather' },
+  })
 
   // Bilingual category (create in ml, then add the en translation)
   const category = await payload.create({
@@ -60,6 +87,9 @@ const run = async () => {
       publishedAt: new Date().toISOString(),
       excerpt: 'സംസ്ഥാനത്തുടനീളം ശക്തമായ മഴ തുടരുന്നു; ജാഗ്രതാ നിർദേശം.',
       authors: [user.id],
+      tags: [tag.id],
+      featured: true,
+      breaking: true,
       content: lexical(
         'കേരളത്തിൽ കനത്ത മഴ തുടരുകയാണ്. പല ജില്ലകളിലും യെല്ലോ അലർട്ട് പ്രഖ്യാപിച്ചു.',
       ),
@@ -81,7 +111,21 @@ const run = async () => {
     },
   })
 
-  console.log(JSON.stringify({ ok: true, userId: user.id, categoryId: category.id, articleId: article.id }))
+  // Editorial homepage curation
+  await payload.updateGlobal({
+    slug: 'homepage',
+    data: { leadArticle: article.id, featuredArticles: [article.id] },
+  })
+
+  console.log(
+    JSON.stringify({
+      ok: true,
+      userId: user.id,
+      categoryId: category.id,
+      tagId: tag.id,
+      articleId: article.id,
+    }),
+  )
   process.exit(0)
 }
 

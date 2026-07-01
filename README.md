@@ -16,12 +16,48 @@ Malayalam-first news portal built on **Payload 3 + Next.js (App Router)**, with 
 | Editor | Lexical rich text |
 | Fonts | Noto Sans Malayalam + Inter via `next/font` |
 
-## SEO features
+## Features
 
-- Per-locale `<html lang>` (separate root layouts per locale).
-- Canonical + `hreflang` alternates (`ml`, `en`, `x-default`) using each locale's own slug.
-- `NewsArticle` JSON-LD with `inLanguage`.
-- `robots.txt` and a multi-locale `sitemap.xml`.
+**Content & editorial**
+- Articles, Categories, Tags — all field-level bilingual (ml/en)
+- Editorial homepage curation (Homepage global: lead + featured, auto-fills from latest)
+- Breaking-news banner (per-article flag), dismissible, site-wide
+- Author profiles + pages (`/author/[slug]`) with linked bylines
+- Tag/topic pages (`/tag/[slug]`) + related-articles module
+- Drafts, autosave, scheduled publishing
+- Newsletter subscribers + signup form; nodemailer email adapter (SMTP)
+
+**Reader experience**
+- On-site search (`/search`)
+- Social share (WhatsApp / Facebook / X / copy link)
+- On-publish revalidation — published edits appear immediately
+
+**SEO / distribution**
+- Per-locale `<html lang>` (separate root layouts per locale)
+- Canonical + `hreflang` alternates (`ml`, `en`, `x-default`) using each locale's own slug
+- `NewsArticle` JSON-LD with `inLanguage`
+- `robots.txt`, multi-locale `sitemap.xml`, **Google News** `news-sitemap.xml` (last 48h)
+- Per-locale RSS feeds (`/rss.xml`, `/en/rss.xml`)
+- Branded default OpenGraph image (`/og`); articles use their hero image
+- Analytics: cookieless Vercel Analytics + Speed Insights; GA4 gated behind consent
+
+## Deploy (Vercel + Neon Postgres)
+
+Production uses **migrations** (not dev push). Before the first deploy:
+
+```bash
+pnpm payload migrate:create initial   # generate migration from the schema
+git add src/migrations && git commit -m "Add initial DB migration"
+```
+
+Then on Vercel:
+1. Provision a Postgres database (Neon / Vercel Postgres) and copy its connection string.
+2. Set env vars: `DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SITE_URL`, and
+   optionally `SMTP_*`, `EMAIL_FROM`, `NEXT_PUBLIC_GA_ID`.
+3. Deploy. `vercel.json` runs `payload migrate` before `next build`, so the schema
+   is applied automatically.
+
+> Dev uses `scripts/db-push.ts` (schema push); production uses migrations.
 
 ## Requirements
 

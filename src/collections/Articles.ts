@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { slugField } from '../fields/slugField'
+import { revalidateSite } from '../hooks/revalidate'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -13,6 +14,21 @@ export const Articles: CollectionConfig = {
   access: {
     // Public can read; drafts are filtered out at query time on the frontend.
     read: () => true,
+  },
+  hooks: {
+    // Only revalidate for public-facing changes — skip the ~375ms draft autosaves.
+    afterChange: [
+      ({ doc, previousDoc }) => {
+        if (doc?._status === 'published' || previousDoc?._status === 'published') {
+          revalidateSite()
+        }
+      },
+    ],
+    afterDelete: [
+      ({ doc }) => {
+        if (doc?._status === 'published') revalidateSite()
+      },
+    ],
   },
   versions: {
     drafts: {
@@ -56,6 +72,25 @@ export const Articles: CollectionConfig = {
     { name: 'heroImage', type: 'upload', relationTo: 'media' },
     { name: 'content', type: 'richText', required: true, localized: true },
     { name: 'authors', type: 'relationship', relationTo: 'users', hasMany: true },
+    { name: 'tags', type: 'relationship', relationTo: 'tags', hasMany: true },
+    {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Eligible for the featured row on the homepage.',
+      },
+    },
+    {
+      name: 'breaking',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        description: 'Show in the breaking-news banner across the site.',
+      },
+    },
     {
       type: 'group',
       name: 'meta',

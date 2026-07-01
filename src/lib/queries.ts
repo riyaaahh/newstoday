@@ -3,9 +3,14 @@ import { getPayload, type Where } from 'payload'
 import config from '@/payload.config'
 
 import { locales, type Locale } from './locale'
-import type { Article, Category } from '@/payload-types'
+import type { Article, Category, Tag, User } from '@/payload-types'
 
 export const getClient = async () => getPayload({ config: await config })
+
+export async function getHomepage(locale: Locale) {
+  const payload = await getClient()
+  return payload.findGlobal({ slug: 'homepage', locale, depth: 2 })
+}
 
 export async function getCategories(locale: Locale): Promise<Category[]> {
   const payload = await getClient()
@@ -59,6 +64,21 @@ export async function getArticle(
   return docs[0] ?? null
 }
 
+export async function getBreakingArticle(locale: Locale): Promise<Article | null> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    locale,
+    where: {
+      and: [{ _status: { equals: 'published' } }, { breaking: { equals: true } }],
+    },
+    sort: '-publishedAt',
+    limit: 1,
+    depth: 1,
+  })
+  return docs[0] ?? null
+}
+
 export async function getCategory(locale: Locale, slug: string): Promise<Category | null> {
   const payload = await getClient()
   const { docs } = await payload.find({
@@ -103,6 +123,170 @@ export async function getArticleAlternatePaths(
     paths[l] = `/${catSlug}/${artSlug}`
   }
   return paths
+}
+
+// ---------- Authors ----------
+
+export async function getAuthor(locale: Locale, slug: string): Promise<User | null> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'users',
+    locale,
+    where: { slug: { equals: slug } },
+    depth: 1,
+    limit: 1,
+  })
+  return docs[0] ?? null
+}
+
+export async function getArticlesByAuthor(
+  locale: Locale,
+  authorId: number | string,
+  limit = 24,
+): Promise<Article[]> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    locale,
+    where: {
+      and: [{ _status: { equals: 'published' } }, { authors: { in: [authorId] } }],
+    },
+    sort: '-publishedAt',
+    limit,
+    depth: 1,
+  })
+  return docs
+}
+
+// ---------- Tags ----------
+
+export async function getTag(locale: Locale, slug: string): Promise<Tag | null> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'tags',
+    locale,
+    where: { slug: { equals: slug } },
+    depth: 0,
+    limit: 1,
+  })
+  return docs[0] ?? null
+}
+
+export async function getArticlesByTag(
+  locale: Locale,
+  slug: string,
+  limit = 24,
+): Promise<Article[]> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    locale,
+    where: {
+      and: [{ _status: { equals: 'published' } }, { 'tags.slug': { equals: slug } }],
+    },
+    sort: '-publishedAt',
+    limit,
+    depth: 1,
+  })
+  return docs
+}
+
+export async function getTagAlternatePaths(
+  id: number | string,
+): Promise<Record<Locale, string> | null> {
+  const payload = await getClient()
+  const tag = (await payload.findByID({
+    collection: 'tags',
+    id,
+    locale: 'all',
+    depth: 0,
+  })) as unknown as { slug: Record<Locale, string> }
+
+  const paths = {} as Record<Locale, string>
+  for (const l of locales) {
+    const slug = tag.slug?.[l]
+    if (!slug) return null
+    paths[l] = `/tag/${slug}`
+  }
+  return paths
+}
+
+/** Articles published since a given ISO timestamp, in all locales (for the news sitemap). */
+export async function getArticlesSince(sinceISO: string, limit = 1000) {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    where: {
+      and: [
+        { _status: { equals: 'published' } },
+        { publishedAt: { greater_than_equal: sinceISO } },
+      ],
+    },
+    locale: 'all',
+    depth: 1,
+    limit,
+    sort: '-publishedAt',
+  })
+  return docs
+}
+
+// ---------- Search ----------
+
+export async function searchArticles(
+  locale: Locale,
+  q: string,
+  limit = 30,
+): Promise<Article[]> {
+  if (!q.trim()) return []
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    locale,
+    where: {
+      and: [
+        { _status: { equals: 'published' } },
+        { or: [{ title: { like: q } }, { excerpt: { like: q } }] },
+      ],
+    },
+    sort: '-publishedAt',
+    limit,
+    depth: 1,
+  })
+  return docs
+}
+
+// ---------- Related ----------
+
+export async function getRelatedArticles(
+  locale: Locale,
+  article: Article,
+  limit = 4,
+): Promise<Article[]> {
+  const payload = await getClient()
+  const tagIds = (article.tags ?? []).map((t) => (typeof t === 'object' ? t.id : t))
+  const cat = article.category
+  const categoryId = cat == null ? undefined : typeof cat === 'object' ? cat.id : cat
+
+  const or: Where[] = []
+  if (tagIds.length) or.push({ tags: { in: tagIds } })
+  if (categoryId) or.push({ category: { equals: categoryId } })
+  if (!or.length) return []
+
+  const { docs } = await payload.find({
+    collection: 'articles',
+    locale,
+    where: {
+      and: [
+        { _status: { equals: 'published' } },
+        { id: { not_equals: article.id } },
+        { or },
+      ],
+    },
+    sort: '-publishedAt',
+    limit,
+    depth: 1,
+  })
+  return docs
 }
 
 /** Category path (/slug) in both locales for hreflang alternates. */

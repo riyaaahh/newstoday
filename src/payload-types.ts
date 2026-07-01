@@ -69,7 +69,9 @@ export interface Config {
   collections: {
     articles: Article;
     categories: Category;
+    tags: Tag;
     media: Media;
+    subscribers: Subscriber;
     users: User;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -81,7 +83,9 @@ export interface Config {
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -93,8 +97,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: ('false' | 'none' | 'null') | false | null | ('ml' | 'en') | ('ml' | 'en')[];
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    homepage: Homepage;
+  };
+  globalsSelect: {
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
+  };
   locale: 'ml' | 'en';
   widgets: {
     collections: CollectionsWidget;
@@ -166,6 +174,15 @@ export interface Article {
     [k: string]: unknown;
   };
   authors?: (number | User)[] | null;
+  tags?: (number | Tag)[] | null;
+  /**
+   * Eligible for the featured row on the homepage.
+   */
+  featured?: boolean | null;
+  /**
+   * Show in the breaking-news banner across the site.
+   */
+  breaking?: boolean | null;
   /**
    * Optional overrides. Falls back to the title / excerpt above.
    */
@@ -219,6 +236,16 @@ export interface Media {
 export interface User {
   id: number;
   name: string;
+  /**
+   * URL identifier. Auto-generated from the title — edit only if needed.
+   */
+  slug: string;
+  /**
+   * Designation shown on bylines, e.g. Senior Reporter.
+   */
+  title?: string | null;
+  bio?: string | null;
+  avatar?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -237,6 +264,31 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: number;
+  name: string;
+  /**
+   * URL identifier. Auto-generated from the title — edit only if needed.
+   */
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers".
+ */
+export interface Subscriber {
+  id: number;
+  email: string;
+  locale?: ('ml' | 'en') | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -363,8 +415,16 @@ export interface PayloadLockedDocument {
         value: number | Category;
       } | null)
     | ({
+        relationTo: 'tags';
+        value: number | Tag;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'subscribers';
+        value: number | Subscriber;
       } | null)
     | ({
         relationTo: 'users';
@@ -425,6 +485,9 @@ export interface ArticlesSelect<T extends boolean = true> {
   heroImage?: T;
   content?: T;
   authors?: T;
+  tags?: T;
+  featured?: T;
+  breaking?: T;
   meta?:
     | T
     | {
@@ -449,6 +512,16 @@ export interface CategoriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -467,10 +540,24 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscribers_select".
+ */
+export interface SubscribersSelect<T extends boolean = true> {
+  email?: T;
+  locale?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
+  title?: T;
+  bio?: T;
+  avatar?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -558,6 +645,34 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  /**
+   * The main hero story. Leave empty to auto-use the latest published article.
+   */
+  leadArticle?: (number | null) | Article;
+  /**
+   * Curated stories for the featured row. Leave empty to auto-fill with the latest.
+   */
+  featuredArticles?: (number | Article)[] | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  leadArticle?: T;
+  featuredArticles?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
