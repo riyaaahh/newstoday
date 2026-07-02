@@ -38,6 +38,7 @@ const run = async () => {
         name: 'അനു മോഹൻ',
         email: 'editor@newstoday.test',
         password: 'password123',
+        role: 'admin',
         slug: 'anu-mohan',
         title: 'സീനിയർ റിപ്പോർട്ടർ',
         bio: 'കേരള രാഷ്ട്രീയവും കാലാവസ്ഥയും റിപ്പോർട്ട് ചെയ്യുന്നു.',

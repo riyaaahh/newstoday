@@ -72,6 +72,8 @@ export interface Config {
     tags: Tag;
     media: Media;
     subscribers: Subscriber;
+    'push-subscriptions': PushSubscription;
+    redirects: Redirect;
     users: User;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -86,6 +88,8 @@ export interface Config {
     tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
+    'push-subscriptions': PushSubscriptionsSelect<false> | PushSubscriptionsSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -184,6 +188,10 @@ export interface Article {
    */
   breaking?: boolean | null;
   /**
+   * Total page views (tracked automatically).
+   */
+  views?: number | null;
+  /**
    * Optional overrides. Falls back to the title / excerpt above.
    */
   meta?: {
@@ -236,6 +244,7 @@ export interface Media {
 export interface User {
   id: number;
   name: string;
+  role: 'admin' | 'editor' | 'author';
   /**
    * URL identifier. Auto-generated from the title — edit only if needed.
    */
@@ -287,6 +296,42 @@ export interface Subscriber {
   id: number;
   email: string;
   locale?: ('ml' | 'en') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "push-subscriptions".
+ */
+export interface PushSubscription {
+  id: number;
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  locale?: ('ml' | 'en') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Redirect old URLs to new ones so links and SEO survive slug changes.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  /**
+   * Path to match, e.g. /old-section/old-slug (include the leading slash).
+   */
+  from: string;
+  /**
+   * Destination path, e.g. /kerala/new-slug (must be an internal path).
+   */
+  to: string;
+  /**
+   * Permanent (308) when checked, temporary (307) when not.
+   */
+  permanent?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -427,6 +472,14 @@ export interface PayloadLockedDocument {
         value: number | Subscriber;
       } | null)
     | ({
+        relationTo: 'push-subscriptions';
+        value: number | PushSubscription;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null);
@@ -488,6 +541,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   tags?: T;
   featured?: T;
   breaking?: T;
+  views?: T;
   meta?:
     | T
     | {
@@ -550,10 +604,34 @@ export interface SubscribersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "push-subscriptions_select".
+ */
+export interface PushSubscriptionsSelect<T extends boolean = true> {
+  endpoint?: T;
+  p256dh?: T;
+  auth?: T;
+  locale?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  from?: T;
+  to?: T;
+  permanent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  role?: T;
   slug?: T;
   title?: T;
   bio?: T;
@@ -700,6 +778,20 @@ export interface TaskSchedulePublish {
     user?: (number | null) | User;
   };
   output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EmbedBlock".
+ */
+export interface EmbedBlock {
+  /**
+   * YouTube / Vimeo / social post URL.
+   */
+  url: string;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'embed';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

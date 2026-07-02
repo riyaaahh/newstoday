@@ -30,7 +30,20 @@ Malayalam-first news portal built on **Payload 3 + Next.js (App Router)**, with 
 **Reader experience**
 - On-site search (`/search`)
 - Social share (WhatsApp / Facebook / X / copy link)
+- Rich embeds in articles (YouTube / Vimeo) via a Lexical block
+- Most-read / trending widget (atomic view counter)
+- Web push breaking-news alerts (opt-in; VAPID)
 - On-publish revalidation — published edits appear immediately
+
+**Editorial & ops**
+- Roles (admin / editor / author) with role-based access; authors submit, editors publish
+- Redirects manager (preserves links/SEO on slug changes)
+- Ad slots (AdSense) — consent-gated
+
+**Setup notes for optional integrations**
+- Web push: `npx web-push generate-vapid-keys`, then set `VAPID_PUBLIC_KEY`,
+  `VAPID_PRIVATE_KEY`, and `NEXT_PUBLIC_VAPID_PUBLIC_KEY`.
+- Ads: set `NEXT_PUBLIC_ADSENSE_CLIENT`. Analytics: `NEXT_PUBLIC_GA_ID`.
 
 **SEO / distribution**
 - Per-locale `<html lang>` (separate root layouts per locale)

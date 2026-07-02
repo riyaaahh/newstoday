@@ -230,6 +230,37 @@ export async function getArticlesSince(sinceISO: string, limit = 1000) {
   return docs
 }
 
+export async function getMostRead(locale: Locale, limit = 5): Promise<Article[]> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    locale,
+    where: {
+      and: [{ _status: { equals: 'published' } }, { views: { greater_than: 0 } }],
+    },
+    sort: '-views',
+    limit,
+    depth: 1,
+  })
+  return docs
+}
+
+// ---------- Redirects ----------
+
+export async function getRedirect(
+  path: string,
+): Promise<{ to: string; permanent: boolean } | null> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'redirects',
+    where: { from: { equals: path } },
+    limit: 1,
+    depth: 0,
+  })
+  const r = docs[0]
+  return r ? { to: r.to, permanent: r.permanent ?? true } : null
+}
+
 // ---------- Search ----------
 
 export async function searchArticles(

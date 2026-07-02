@@ -10,19 +10,21 @@ const KEY = 'cookie-consent'
 // Analytics is handled separately and needs no banner.
 export function CookieConsent({
   gaId,
+  adsenseClient,
   labels,
 }: {
   gaId?: string
+  adsenseClient?: string
   labels: { text: string; accept: string; decline: string }
 }) {
   const consent = useStoredValue('local', KEY)
 
-  // Nothing to consent to if GA isn't configured.
-  if (!gaId) return null
+  // Nothing to consent to if neither GA nor ads are configured.
+  if (!gaId && !adsenseClient) return null
 
   return (
     <>
-      {consent === 'yes' && (
+      {consent === 'yes' && gaId && (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
@@ -32,6 +34,13 @@ export function CookieConsent({
             {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${gaId}');`}
           </Script>
         </>
+      )}
+      {consent === 'yes' && adsenseClient && (
+        <Script
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
+          strategy="afterInteractive"
+          crossOrigin="anonymous"
+        />
       )}
       {consent == null && (
         <div className="consent" role="dialog" aria-label="Cookie consent">

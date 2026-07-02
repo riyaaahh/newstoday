@@ -4,13 +4,17 @@ import { ArticleCard } from '@/components/ArticleCard'
 import { MediaImage } from '@/components/MediaImage'
 import { SiteHeader } from '@/components/SiteHeader'
 import { t } from '@/lib/i18n'
-import type { Locale } from '@/lib/locale'
+import { localePath, type Locale } from '@/lib/locale'
+import { applyRedirect } from '@/lib/redirects'
 import { getArticlesByAuthor, getAuthor, getCategories } from '@/lib/queries'
 import type { Media } from '@/payload-types'
 
 export async function AuthorView({ locale, slug }: { locale: Locale; slug: string }) {
   const author = await getAuthor(locale, slug)
-  if (!author) notFound()
+  if (!author) {
+    await applyRedirect(localePath(locale, `/author/${slug}`))
+    notFound()
+  }
 
   const [articles, categories] = await Promise.all([
     getArticlesByAuthor(locale, author.id),

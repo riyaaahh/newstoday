@@ -27,6 +27,10 @@ const dict = {
     consentText: 'അനുഭവം മെച്ചപ്പെടുത്താൻ ഞങ്ങൾ കുക്കികൾ ഉപയോഗിക്കുന്നു.',
     accept: 'സമ്മതിക്കുന്നു',
     decline: 'വേണ്ട',
+    mostRead: 'കൂടുതൽ വായിക്കപ്പെട്ടവ',
+    enableAlerts: 'ബ്രേക്കിംഗ് അലേർട്ടുകൾ',
+    alertsOn: 'അലേർട്ടുകൾ ഓണാണ്',
+    alertsBlocked: 'അലേർട്ടുകൾ തടഞ്ഞു',
   },
   en: {
     latest: 'Latest',
@@ -54,6 +58,10 @@ const dict = {
     consentText: 'We use cookies to improve your experience.',
     accept: 'Accept',
     decline: 'Decline',
+    mostRead: 'Most read',
+    enableAlerts: 'Breaking alerts',
+    alertsOn: 'Alerts on',
+    alertsBlocked: 'Alerts blocked',
   },
 } as const
 

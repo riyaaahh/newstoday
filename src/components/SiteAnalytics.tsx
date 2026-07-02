@@ -14,6 +14,7 @@ export function SiteAnalytics({ locale }: { locale: Locale }) {
       <SpeedInsights />
       <CookieConsent
         gaId={process.env.NEXT_PUBLIC_GA_ID}
+        adsenseClient={process.env.NEXT_PUBLIC_ADSENSE_CLIENT}
         labels={{
           text: t(locale, 'consentText'),
           accept: t(locale, 'accept'),

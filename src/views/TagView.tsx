@@ -3,12 +3,16 @@ import { notFound } from 'next/navigation'
 import { ArticleCard } from '@/components/ArticleCard'
 import { SiteHeader } from '@/components/SiteHeader'
 import { t } from '@/lib/i18n'
-import { otherLocale, type Locale } from '@/lib/locale'
+import { localePath, otherLocale, type Locale } from '@/lib/locale'
+import { applyRedirect } from '@/lib/redirects'
 import { getArticlesByTag, getCategories, getTag, getTagAlternatePaths } from '@/lib/queries'
 
 export async function TagView({ locale, slug }: { locale: Locale; slug: string }) {
   const tag = await getTag(locale, slug)
-  if (!tag) notFound()
+  if (!tag) {
+    await applyRedirect(localePath(locale, `/tag/${slug}`))
+    notFound()
+  }
 
   const [articles, categories, alt] = await Promise.all([
     getArticlesByTag(locale, slug),

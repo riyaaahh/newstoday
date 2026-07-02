@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import { ArticleCard } from '@/components/ArticleCard'
 import { SiteHeader } from '@/components/SiteHeader'
 import { t } from '@/lib/i18n'
-import { otherLocale, type Locale } from '@/lib/locale'
+import { localePath, otherLocale, type Locale } from '@/lib/locale'
+import { applyRedirect } from '@/lib/redirects'
 import {
   getCategories,
   getCategory,
@@ -13,7 +14,10 @@ import {
 
 export async function CategoryView({ locale, slug }: { locale: Locale; slug: string }) {
   const category = await getCategory(locale, slug)
-  if (!category) notFound()
+  if (!category) {
+    await applyRedirect(localePath(locale, `/${slug}`))
+    notFound()
+  }
 
   const [articles, categories, alt] = await Promise.all([
     getLatestArticles(locale, { limit: 24, categorySlug: slug }),

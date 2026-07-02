@@ -4,6 +4,7 @@ import { t } from '@/lib/i18n'
 import { localePath, type Locale } from '@/lib/locale'
 
 import { NewsletterSignup } from './NewsletterSignup'
+import { PushSubscribe } from './PushSubscribe'
 
 export function SiteFooter({ locale }: { locale: Locale }) {
   return (
@@ -24,6 +25,14 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           <Link href={localePath(locale, '/')} className="brand">
             News<span>Today</span>
           </Link>
+          <PushSubscribe
+            locale={locale}
+            labels={{
+              enable: t(locale, 'enableAlerts'),
+              on: t(locale, 'alertsOn'),
+              blocked: t(locale, 'alertsBlocked'),
+            }}
+          />
           <p>© 2026 NewsToday</p>
         </div>
       </div>

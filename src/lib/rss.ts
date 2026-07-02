@@ -1,12 +1,18 @@
 import { absoluteUrl, localePath, type Locale } from './locale'
-import { getLatestArticles } from './queries'
+import { getCategory, getLatestArticles } from './queries'
 import { escapeXml } from './xml'
 import type { Category } from '@/payload-types'
 
-export async function buildRssFeed(locale: Locale): Promise<string> {
-  const articles = await getLatestArticles(locale, { limit: 30 })
-  const title = locale === 'ml' ? 'ന്യൂസ് ടുഡേ' : 'NewsToday'
-  const selfUrl = absoluteUrl(localePath(locale, '/rss.xml'))
+export async function buildRssFeed(locale: Locale, categorySlug?: string): Promise<string> {
+  const articles = await getLatestArticles(locale, { limit: 30, categorySlug })
+  let title = locale === 'ml' ? 'ന്യൂസ് ടുഡേ' : 'NewsToday'
+  let selfPath = '/rss.xml'
+  if (categorySlug) {
+    const cat = await getCategory(locale, categorySlug)
+    if (cat) title = `${title} — ${cat.name}`
+    selfPath = `/rss.xml?category=${encodeURIComponent(categorySlug)}`
+  }
+  const selfUrl = absoluteUrl(localePath(locale, selfPath))
   const siteUrl = absoluteUrl(localePath(locale, '/'))
 
   const items = articles

@@ -1,7 +1,9 @@
 import type { CollectionConfig } from 'payload'
 
+import { canManageOwnArticle, isEditor, isStaff } from '../access/roles'
 import { slugField } from '../fields/slugField'
 import { revalidateSite } from '../hooks/revalidate'
+import { sendBreakingPush } from '../lib/push'
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -14,13 +16,39 @@ export const Articles: CollectionConfig = {
   access: {
     // Public can read; drafts are filtered out at query time on the frontend.
     read: () => true,
+    create: isStaff,
+    update: canManageOwnArticle,
+    delete: isEditor,
   },
   hooks: {
+    beforeChange: [
+      ({ data, req, operation }) => {
+        // On create, add the creator as an author if none set, so authors can
+        // always edit their own drafts (update access is scoped to own articles).
+        if (operation === 'create' && req.user && (!data.authors || data.authors.length === 0)) {
+          data.authors = [req.user.id]
+        }
+        // Authors submit for review; only editors/admins publish.
+        const role = (req.user as { role?: string } | undefined)?.role
+        if (role === 'author' && data?._status === 'published') {
+          data._status = 'draft'
+        }
+        return data
+      },
+    ],
     // Only revalidate for public-facing changes — skip the ~375ms draft autosaves.
     afterChange: [
       ({ doc, previousDoc }) => {
         if (doc?._status === 'published' || previousDoc?._status === 'published') {
           revalidateSite()
+        }
+      },
+      // Send a breaking-news push the moment a breaking article is first published.
+      ({ doc, previousDoc, req }) => {
+        const nowPublished =
+          doc?._status === 'published' && previousDoc?._status !== 'published'
+        if (nowPublished && doc?.breaking && doc?.id) {
+          void sendBreakingPush(req.payload, doc.id)
         }
       },
     ],
@@ -89,6 +117,16 @@ export const Articles: CollectionConfig = {
       admin: {
         position: 'sidebar',
         description: 'Show in the breaking-news banner across the site.',
+      },
+    },
+    {
+      name: 'views',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Total page views (tracked automatically).',
       },
     },
     {

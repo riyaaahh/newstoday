@@ -1,6 +1,6 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { BlocksFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -12,6 +12,9 @@ import { Categories } from './collections/Categories'
 import { Articles } from './collections/Articles'
 import { Tags } from './collections/Tags'
 import { Subscribers } from './collections/Subscribers'
+import { PushSubscriptions } from './collections/PushSubscriptions'
+import { Redirects } from './collections/Redirects'
+import { EmbedBlock } from './blocks/Embed'
 import { Homepage } from './globals/Homepage'
 
 const filename = fileURLToPath(import.meta.url)
@@ -24,9 +27,20 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Articles, Categories, Tags, Media, Subscribers, Users],
+  collections: [
+    Articles,
+    Categories,
+    Tags,
+    Media,
+    Subscribers,
+    PushSubscriptions,
+    Redirects,
+    Users,
+  ],
   globals: [Homepage],
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: ({ defaultFeatures }) => [...defaultFeatures, BlocksFeature({ blocks: [EmbedBlock] })],
+  }),
   // Real SMTP in production (set SMTP_* env); falls back to console logging in dev.
   email: process.env.SMTP_HOST
     ? nodemailerAdapter({

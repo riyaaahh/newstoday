@@ -1,14 +1,17 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { AdSlot } from '@/components/AdSlot'
 import { ArticleBody } from '@/components/ArticleBody'
 import { ArticleCard } from '@/components/ArticleCard'
 import { MediaImage } from '@/components/MediaImage'
 import { NewsArticleJsonLd } from '@/components/NewsArticleJsonLd'
 import { ShareButtons } from '@/components/ShareButtons'
 import { SiteHeader } from '@/components/SiteHeader'
+import { ViewBeacon } from '@/components/ViewBeacon'
 import { formatDate, t } from '@/lib/i18n'
 import { absoluteUrl, localePath, otherLocale, type Locale } from '@/lib/locale'
+import { applyRedirect } from '@/lib/redirects'
 import {
   getArticle,
   getArticleAlternatePaths,
@@ -27,7 +30,10 @@ export async function ArticleView({
   slug: string
 }) {
   const article = await getArticle(locale, categorySlug, slug)
-  if (!article) notFound()
+  if (!article) {
+    await applyRedirect(localePath(locale, `/${categorySlug}/${slug}`))
+    notFound()
+  }
 
   const [categories, alt, related] = await Promise.all([
     getCategories(locale),
@@ -46,6 +52,7 @@ export async function ArticleView({
   return (
     <>
       <NewsArticleJsonLd locale={locale} article={article} path={path} />
+      <ViewBeacon id={article.id} />
       <SiteHeader locale={locale} categories={categories} altPath={alt?.[other] ?? '/'} />
       <main className="container article-page">
         <article>
@@ -81,6 +88,8 @@ export async function ArticleView({
             </figure>
           )}
           <ArticleBody content={article.content} />
+
+          <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE} className="ad-inarticle" />
 
           {tags.length > 0 && (
             <div className="tag-list">
