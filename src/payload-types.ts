@@ -202,9 +202,9 @@ export interface Article {
    */
   premium?: boolean | null;
   /**
-   * Include in the Videos hub.
+   * YouTube/Vimeo URL — auto-embeds at the top and lists in the Videos hub.
    */
-  hasVideo?: boolean | null;
+  videoUrl?: string | null;
   /**
    * Live blog — shows a LIVE badge and updates.
    */
@@ -587,7 +587,7 @@ export interface ArticlesSelect<T extends boolean = true> {
   views?: T;
   sponsored?: T;
   premium?: T;
-  hasVideo?: T;
+  videoUrl?: T;
   isLive?: T;
   liveUpdates?:
     | T

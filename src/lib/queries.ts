@@ -236,7 +236,7 @@ export async function getVideoArticles(locale: Locale, limit = 24): Promise<Arti
     collection: 'articles',
     locale,
     where: {
-      and: [{ _status: { equals: 'published' } }, { hasVideo: { equals: true } }],
+      and: [{ _status: { equals: 'published' } }, { videoUrl: { exists: true } }],
     },
     sort: '-publishedAt',
     limit,

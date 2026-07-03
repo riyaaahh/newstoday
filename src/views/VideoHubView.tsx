@@ -1,5 +1,5 @@
-import { ArticleCard } from '@/components/ArticleCard'
 import { SiteHeader } from '@/components/SiteHeader'
+import { VideoCard } from '@/components/VideoCard'
 import { t } from '@/lib/i18n'
 import type { Locale } from '@/lib/locale'
 import { getCategories, getVideoArticles } from '@/lib/queries'
@@ -20,7 +20,7 @@ export async function VideoHubView({ locale }: { locale: Locale }) {
         ) : (
           <div className="grid">
             {videos.map((a) => (
-              <ArticleCard key={a.id} locale={locale} article={a} />
+              <VideoCard key={a.id} locale={locale} article={a} />
             ))}
           </div>
         )}

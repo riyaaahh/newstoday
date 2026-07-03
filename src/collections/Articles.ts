@@ -142,10 +142,12 @@ export const Articles: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Subscriber-only (metered paywall).' },
     },
     {
-      name: 'hasVideo',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: { position: 'sidebar', description: 'Include in the Videos hub.' },
+      name: 'videoUrl',
+      type: 'text',
+      admin: {
+        position: 'sidebar',
+        description: 'YouTube/Vimeo URL — auto-embeds at the top and lists in the Videos hub.',
+      },
     },
     {
       name: 'isLive',

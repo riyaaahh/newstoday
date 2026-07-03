@@ -1,24 +1,7 @@
-const youtubeId = (url: string): string | null => {
-  const m = url.match(
-    /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/,
-  )
-  return m?.[1] ?? null
-}
-
-const vimeoId = (url: string): string | null => {
-  const m = url.match(/vimeo\.com\/(\d+)/)
-  return m?.[1] ?? null
-}
+import { embedSrc } from '@/lib/video'
 
 export function EmbedBlock({ url, caption }: { url: string; caption?: string | null }) {
-  const yt = youtubeId(url)
-  const vimeo = yt ? null : vimeoId(url)
-  const src = yt
-    ? `https://www.youtube-nocookie.com/embed/${yt}`
-    : vimeo
-      ? `https://player.vimeo.com/video/${vimeo}`
-      : null
-
+  const src = embedSrc(url)
   // Only treat http(s) URLs as clickable — blocks javascript:/data: URI XSS.
   const isHttp = /^https?:\/\//i.test(url)
 

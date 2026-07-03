@@ -296,6 +296,38 @@ a:hover {
   border-radius: 8px;
 }
 
+/* Video cards */
+.video-thumb {
+  position: relative;
+  display: block;
+}
+.video-thumb img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--line);
+}
+.play-badge {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(193, 18, 31, 0.92);
+  color: #fff;
+  font-size: 1.2rem;
+  padding-left: 4px;
+}
+.article-video {
+  margin: 0 0 24px;
+}
+
 /* Embeds */
 .embed {
   margin: 24px 0;

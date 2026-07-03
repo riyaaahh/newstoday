@@ -9,8 +9,10 @@ import { LiveRefresher } from '@/components/LiveRefresher'
 import { PaywallGate } from '@/components/PaywallGate'
 import { MediaImage } from '@/components/MediaImage'
 import { NewsArticleJsonLd } from '@/components/NewsArticleJsonLd'
+import { EmbedBlock } from '@/components/EmbedBlock'
 import { ShareButtons } from '@/components/ShareButtons'
 import { SiteHeader } from '@/components/SiteHeader'
+import { VideoObjectJsonLd } from '@/components/VideoObjectJsonLd'
 import { ViewBeacon } from '@/components/ViewBeacon'
 import { formatDate, formatDateTime, t } from '@/lib/i18n'
 import { absoluteUrl, localePath, otherLocale, type Locale } from '@/lib/locale'
@@ -55,6 +57,7 @@ export async function ArticleView({
   return (
     <>
       <NewsArticleJsonLd locale={locale} article={article} path={path} />
+      <VideoObjectJsonLd locale={locale} article={article} />
       <ViewBeacon id={article.id} />
       {article.isLive && <LiveRefresher />}
       <SiteHeader locale={locale} categories={categories} altPath={alt?.[other] ?? '/'} />
@@ -90,11 +93,17 @@ export async function ArticleView({
               <time dateTime={article.publishedAt}>{formatDate(locale, article.publishedAt)}</time>
             )}
           </div>
-          {hero && (
-            <figure className="article-hero">
-              <MediaImage media={hero} sizes="(max-width: 800px) 100vw, 800px" priority />
-              {hero.alt && <figcaption>{hero.alt}</figcaption>}
-            </figure>
+          {article.videoUrl ? (
+            <div className="article-video">
+              <EmbedBlock url={article.videoUrl} />
+            </div>
+          ) : (
+            hero && (
+              <figure className="article-hero">
+                <MediaImage media={hero} sizes="(max-width: 800px) 100vw, 800px" priority />
+                {hero.alt && <figcaption>{hero.alt}</figcaption>}
+              </figure>
+            )
           )}
           {article.isLive && (article.liveUpdates?.length ?? 0) > 0 && (
             <section className="live-updates">
