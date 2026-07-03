@@ -1,13 +1,18 @@
+import Sanscript from '@indic-transliteration/sanscript'
+import anyAscii from 'any-ascii'
+
+const stripDiacritics = (s: string): string => s.normalize('NFD').replace(/[̀-ͯ]/g, '')
+
 /**
- * Unicode-aware slugify. Keeps Malayalam (and any Unicode) letters/numbers,
- * lowercases ASCII, and collapses whitespace to hyphens. Malayalam characters
- * stay intact — they are valid in URLs once percent-encoded and are good for SEO.
+ * Produce an ASCII, URL-safe slug for both categories and articles.
+ *
+ * Malayalam is transliterated (Sanscript → IAST, diacritics stripped, chillu
+ * letters romanized via any-ascii) so slugs never contain non-ASCII characters.
+ * Percent-encoded Malayalam slugs were 404-ing (normalization mismatch between
+ * the stored slug and the URL param). English/Latin input passes through.
  */
 export const slugify = (input: string): string =>
-  input
-    .trim()
+  anyAscii(stripDiacritics(Sanscript.t(input, 'malayalam', 'iast')))
     .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\p{L}\p{N}-]+/gu, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
