@@ -54,23 +54,39 @@ Malayalam-first news portal built on **Payload 3 + Next.js (App Router)**, with 
 - Branded default OpenGraph image (`/og`); articles use their hero image
 - Analytics: cookieless Vercel Analytics + Speed Insights; GA4 gated behind consent
 
-## Deploy (Vercel + Neon Postgres)
+## Deploy to Vercel (Neon Postgres + Blob)
 
-Production uses **migrations** (not dev push). Before the first deploy:
+The repo is deploy-ready. `vercel.json` runs `payload migrate && next build`, so the
+DB schema is applied automatically at build (the initial migration is committed in
+`src/migrations`). **Build runs on Node 22** (pinned via `engines` / `.nvmrc`).
+
+1. **Provision Postgres — Neon.** In the Vercel dashboard → Storage → add **Neon**
+   (Postgres). Use its **pooled** connection string (host contains `-pooler`) as
+   `DATABASE_URL` — required so serverless functions don't exhaust connections.
+2. **Provision media storage — Vercel Blob.** Storage → add **Blob**; it sets
+   `BLOB_READ_WRITE_TOKEN`. Without it, uploads would be lost (serverless FS is
+   ephemeral); with it, media persists to Blob automatically.
+3. **Set env vars** (Project → Settings → Environment Variables):
+   - Required: `DATABASE_URL` (pooled), `PAYLOAD_SECRET` (`openssl rand -hex 32`),
+     `NEXT_PUBLIC_SITE_URL` (your domain), `BLOB_READ_WRITE_TOKEN`.
+   - Optional: `SMTP_*` + `EMAIL_FROM`, `NEXT_PUBLIC_GA_ID`,
+     `NEXT_PUBLIC_ADSENSE_CLIENT` + slot ids, `VAPID_*` +
+     `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN`.
+4. **Connect the repo** and deploy. First build applies the migration to an empty
+   DB and prerenders empty listings; open `/admin` to create the first user and add
+   content (published edits appear via on-publish revalidation).
+
+### Schema changes later
+
+Dev uses schema push (`scripts/db-push.ts`); production uses migrations. After
+changing collections, generate a migration and commit it (**on Node 22** — the
+`migrate:create` generator currently breaks on Node 24):
 
 ```bash
-pnpm payload migrate:create initial   # generate migration from the schema
-git add src/migrations && git commit -m "Add initial DB migration"
+nvm use            # Node 22 (from .nvmrc)
+pnpm payload migrate:create <name>
+git add src/migrations && git commit -m "Migration: <name>"
 ```
-
-Then on Vercel:
-1. Provision a Postgres database (Neon / Vercel Postgres) and copy its connection string.
-2. Set env vars: `DATABASE_URL`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SITE_URL`, and
-   optionally `SMTP_*`, `EMAIL_FROM`, `NEXT_PUBLIC_GA_ID`.
-3. Deploy. `vercel.json` runs `payload migrate` before `next build`, so the schema
-   is applied automatically.
-
-> Dev uses `scripts/db-push.ts` (schema push); production uses migrations.
 
 ## Requirements
 
