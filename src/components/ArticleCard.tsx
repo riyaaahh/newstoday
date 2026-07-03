@@ -1,6 +1,6 @@
 import Link from 'next/link'
 
-import { formatDate } from '@/lib/i18n'
+import { formatDate, t } from '@/lib/i18n'
 import { localePath, type Locale } from '@/lib/locale'
 import type { Article, Category } from '@/payload-types'
 
@@ -29,7 +29,11 @@ export function ArticleCard({
         />
       </Link>
       <div className="card-body">
-        {category && <span className="card-cat">{category.name}</span>}
+        {article.sponsored ? (
+          <span className="card-cat sponsored">{t(locale, 'sponsored')}</span>
+        ) : (
+          category && <span className="card-cat">{category.name}</span>
+        )}
         <h2 className="card-title">
           <Link href={href}>{article.title}</Link>
         </h2>

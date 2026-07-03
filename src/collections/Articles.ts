@@ -130,6 +130,45 @@ export const Articles: CollectionConfig = {
       },
     },
     {
+      name: 'sponsored',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar', description: 'Label as sponsored / paid content.' },
+    },
+    {
+      name: 'premium',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar', description: 'Subscriber-only (metered paywall).' },
+    },
+    {
+      name: 'hasVideo',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar', description: 'Include in the Videos hub.' },
+    },
+    {
+      name: 'isLive',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { position: 'sidebar', description: 'Live blog — shows a LIVE badge and updates.' },
+    },
+    {
+      name: 'liveUpdates',
+      type: 'array',
+      admin: { condition: (data) => Boolean(data?.isLive) },
+      fields: [
+        {
+          name: 'time',
+          type: 'date',
+          required: true,
+          admin: { date: { pickerAppearance: 'dayAndTime' } },
+        },
+        { name: 'title', type: 'text', localized: true },
+        { name: 'body', type: 'textarea', required: true, localized: true },
+      ],
+    },
+    {
       type: 'group',
       name: 'meta',
       label: 'SEO',

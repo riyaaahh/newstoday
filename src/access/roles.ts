@@ -24,3 +24,9 @@ export const canManageOwnArticle: Access = ({ req }) => {
 
 /** Only admins can set/change a role. */
 export const isAdminField: FieldAccess = ({ req }) => roleOf(req.user) === 'admin'
+
+/** Editors/admins only — for fields like a comment's `approved` flag. */
+export const isEditorField: FieldAccess = ({ req }) => {
+  const r = roleOf(req.user)
+  return r === 'admin' || r === 'editor'
+}

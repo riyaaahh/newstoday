@@ -19,7 +19,7 @@ export function AdSlot({ slot, className }: { slot?: string; className?: string 
     } catch {
       /* library not loaded yet (no consent) — the push queues harmlessly */
     }
-  }, [client])
+  }, [client, slot])
 
   // A display ad unit needs both the client id and a slot id to render.
   if (!client || !slot) return null

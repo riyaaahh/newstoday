@@ -25,6 +25,9 @@ export function SiteFooter({ locale }: { locale: Locale }) {
           <Link href={localePath(locale, '/')} className="brand">
             News<span>Today</span>
           </Link>
+          <Link className="footer-link" href={localePath(locale, '/privacy')}>
+            {t(locale, 'privacy')}
+          </Link>
           <PushSubscribe
             locale={locale}
             labels={{

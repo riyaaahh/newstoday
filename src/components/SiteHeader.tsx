@@ -41,6 +41,7 @@ export async function SiteHeader({
                 {c.name}
               </Link>
             ))}
+            <Link href={localePath(locale, '/videos')}>{t(locale, 'videos')}</Link>
           </nav>
           <form className="search-box" action={localePath(locale, '/search')} role="search">
             <input

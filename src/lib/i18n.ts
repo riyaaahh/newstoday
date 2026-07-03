@@ -31,6 +31,22 @@ const dict = {
     enableAlerts: 'ബ്രേക്കിംഗ് അലേർട്ടുകൾ',
     alertsOn: 'അലേർട്ടുകൾ ഓണാണ്',
     alertsBlocked: 'അലേർട്ടുകൾ തടഞ്ഞു',
+    sponsored: 'സ്പോൺസേർഡ്',
+    videos: 'വീഡിയോകൾ',
+    comments: 'അഭിപ്രായങ്ങൾ',
+    yourName: 'നിങ്ങളുടെ പേര്',
+    yourComment: 'നിങ്ങളുടെ അഭിപ്രായം',
+    postComment: 'അഭിപ്രായം പോസ്റ്റ് ചെയ്യുക',
+    commentPending: 'നന്ദി! അവലോകനത്തിന് ശേഷം പ്രസിദ്ധീകരിക്കും.',
+    commentError: 'ക്ഷമിക്കണം, അഭിപ്രായം സമർപ്പിക്കാനായില്ല.',
+    noComments: 'ആദ്യം അഭിപ്രായം പറയൂ.',
+    liveBadge: 'ലൈവ്',
+    liveUpdates: 'തത്സമയ അപ്‌ഡേറ്റുകൾ',
+    premiumBadge: 'പ്രീമിയം',
+    paywallTitle: 'സൗജന്യ ലേഖനങ്ങളുടെ പരിധി കഴിഞ്ഞു',
+    paywallText: 'വായന തുടരാൻ വരിക്കാരാകൂ.',
+    subscribeCta: 'വരിക്കാരാകൂ',
+    privacy: 'സ്വകാര്യതാ നയം',
   },
   en: {
     latest: 'Latest',
@@ -62,6 +78,22 @@ const dict = {
     enableAlerts: 'Breaking alerts',
     alertsOn: 'Alerts on',
     alertsBlocked: 'Alerts blocked',
+    sponsored: 'Sponsored',
+    videos: 'Videos',
+    comments: 'Comments',
+    yourName: 'Your name',
+    yourComment: 'Your comment',
+    postComment: 'Post comment',
+    commentPending: 'Thanks! Your comment will appear after review.',
+    commentError: 'Sorry, your comment could not be submitted.',
+    noComments: 'Be the first to comment.',
+    liveBadge: 'Live',
+    liveUpdates: 'Live updates',
+    premiumBadge: 'Premium',
+    paywallTitle: 'You’ve reached your free article limit',
+    paywallText: 'Subscribe to keep reading.',
+    subscribeCta: 'Subscribe',
+    privacy: 'Privacy policy',
   },
 } as const
 
@@ -75,5 +107,15 @@ export const formatDate = (locale: Locale, value?: string | null): string => {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+  }).format(new Date(value))
+}
+
+export const formatDateTime = (locale: Locale, value?: string | null): string => {
+  if (!value) return ''
+  return new Intl.DateTimeFormat(locale === 'ml' ? 'ml-IN' : 'en-IN', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
   }).format(new Date(value))
 }

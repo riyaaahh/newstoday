@@ -13,6 +13,7 @@ import { Articles } from './collections/Articles'
 import { Tags } from './collections/Tags'
 import { Subscribers } from './collections/Subscribers'
 import { PushSubscriptions } from './collections/PushSubscriptions'
+import { Comments } from './collections/Comments'
 import { Redirects } from './collections/Redirects'
 import { EmbedBlock } from './blocks/Embed'
 import { Homepage } from './globals/Homepage'
@@ -34,6 +35,7 @@ export default buildConfig({
     Media,
     Subscribers,
     PushSubscriptions,
+    Comments,
     Redirects,
     Users,
   ],

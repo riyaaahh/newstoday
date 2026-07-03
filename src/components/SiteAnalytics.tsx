@@ -5,10 +5,12 @@ import { t } from '@/lib/i18n'
 import type { Locale } from '@/lib/locale'
 
 import { CookieConsent } from './CookieConsent'
+import { ServiceWorkerRegister } from './ServiceWorkerRegister'
 
 export function SiteAnalytics({ locale }: { locale: Locale }) {
   return (
     <>
+      <ServiceWorkerRegister />
       {/* Cookieless — no consent required. */}
       <Analytics />
       <SpeedInsights />

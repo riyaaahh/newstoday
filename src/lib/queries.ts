@@ -230,6 +230,35 @@ export async function getArticlesSince(sinceISO: string, limit = 1000) {
   return docs
 }
 
+export async function getVideoArticles(locale: Locale, limit = 24): Promise<Article[]> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    locale,
+    where: {
+      and: [{ _status: { equals: 'published' } }, { hasVideo: { equals: true } }],
+    },
+    sort: '-publishedAt',
+    limit,
+    depth: 1,
+  })
+  return docs
+}
+
+export async function getApprovedComments(articleId: number | string) {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'comments',
+    where: {
+      and: [{ article: { equals: articleId } }, { approved: { equals: true } }],
+    },
+    sort: '-createdAt',
+    limit: 200,
+    depth: 0,
+  })
+  return docs
+}
+
 export async function getMostRead(locale: Locale, limit = 5): Promise<Article[]> {
   const payload = await getClient()
   const { docs } = await payload.find({

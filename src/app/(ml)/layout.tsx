@@ -17,6 +17,11 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-latin', display: 'sw
 export const metadata = {
   metadataBase: new URL(SITE_URL),
   alternates: { types: { 'application/rss+xml': '/rss.xml' } },
+  manifest: '/manifest.webmanifest',
+}
+
+export const viewport = {
+  themeColor: '#c1121f',
 }
 
 export default function MalayalamRootLayout({ children }: { children: React.ReactNode }) {

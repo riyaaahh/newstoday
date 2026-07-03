@@ -56,6 +56,15 @@ export async function categoryMetadata(locale: Locale, slug: string): Promise<Me
   }
 }
 
+export function videosMetadata(locale: Locale): Metadata {
+  const title = `${t(locale, 'videos')} — ${SITE_NAME}`
+  return {
+    title,
+    alternates: buildAlternates(locale, { ml: '/videos', en: '/videos' }),
+    openGraph: { title, type: 'website', siteName: SITE_NAME, locale, images: [DEFAULT_OG] },
+  }
+}
+
 export function searchMetadata(locale: Locale): Metadata {
   return {
     title: `${t(locale, 'search')} — ${SITE_NAME}`,

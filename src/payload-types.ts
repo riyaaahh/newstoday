@@ -73,6 +73,7 @@ export interface Config {
     media: Media;
     subscribers: Subscriber;
     'push-subscriptions': PushSubscription;
+    comments: Comment;
     redirects: Redirect;
     users: User;
     'payload-kv': PayloadKv;
@@ -89,6 +90,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     subscribers: SubscribersSelect<false> | SubscribersSelect<true>;
     'push-subscriptions': PushSubscriptionsSelect<false> | PushSubscriptionsSelect<true>;
+    comments: CommentsSelect<false> | CommentsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -191,6 +193,30 @@ export interface Article {
    * Total page views (tracked automatically).
    */
   views?: number | null;
+  /**
+   * Label as sponsored / paid content.
+   */
+  sponsored?: boolean | null;
+  /**
+   * Subscriber-only (metered paywall).
+   */
+  premium?: boolean | null;
+  /**
+   * Include in the Videos hub.
+   */
+  hasVideo?: boolean | null;
+  /**
+   * Live blog — shows a LIVE badge and updates.
+   */
+  isLive?: boolean | null;
+  liveUpdates?:
+    | {
+        time: string;
+        title?: string | null;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Optional overrides. Falls back to the title / excerpt above.
    */
@@ -309,6 +335,19 @@ export interface PushSubscription {
   p256dh: string;
   auth: string;
   locale?: ('ml' | 'en') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments".
+ */
+export interface Comment {
+  id: number;
+  article: number | Article;
+  authorName: string;
+  body: string;
+  approved?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -476,6 +515,10 @@ export interface PayloadLockedDocument {
         value: number | PushSubscription;
       } | null)
     | ({
+        relationTo: 'comments';
+        value: number | Comment;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -542,6 +585,18 @@ export interface ArticlesSelect<T extends boolean = true> {
   featured?: T;
   breaking?: T;
   views?: T;
+  sponsored?: T;
+  premium?: T;
+  hasVideo?: T;
+  isLive?: T;
+  liveUpdates?:
+    | T
+    | {
+        time?: T;
+        title?: T;
+        body?: T;
+        id?: T;
+      };
   meta?:
     | T
     | {
@@ -611,6 +666,18 @@ export interface PushSubscriptionsSelect<T extends boolean = true> {
   p256dh?: T;
   auth?: T;
   locale?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "comments_select".
+ */
+export interface CommentsSelect<T extends boolean = true> {
+  article?: T;
+  authorName?: T;
+  body?: T;
+  approved?: T;
   updatedAt?: T;
   createdAt?: T;
 }

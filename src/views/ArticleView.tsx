@@ -4,12 +4,15 @@ import { notFound } from 'next/navigation'
 import { AdSlot } from '@/components/AdSlot'
 import { ArticleBody } from '@/components/ArticleBody'
 import { ArticleCard } from '@/components/ArticleCard'
+import { Comments } from '@/components/Comments'
+import { LiveRefresher } from '@/components/LiveRefresher'
+import { PaywallGate } from '@/components/PaywallGate'
 import { MediaImage } from '@/components/MediaImage'
 import { NewsArticleJsonLd } from '@/components/NewsArticleJsonLd'
 import { ShareButtons } from '@/components/ShareButtons'
 import { SiteHeader } from '@/components/SiteHeader'
 import { ViewBeacon } from '@/components/ViewBeacon'
-import { formatDate, t } from '@/lib/i18n'
+import { formatDate, formatDateTime, t } from '@/lib/i18n'
 import { absoluteUrl, localePath, otherLocale, type Locale } from '@/lib/locale'
 import { applyRedirect } from '@/lib/redirects'
 import {
@@ -53,14 +56,20 @@ export async function ArticleView({
     <>
       <NewsArticleJsonLd locale={locale} article={article} path={path} />
       <ViewBeacon id={article.id} />
+      {article.isLive && <LiveRefresher />}
       <SiteHeader locale={locale} categories={categories} altPath={alt?.[other] ?? '/'} />
       <main className="container article-page">
         <article>
-          {category && (
-            <Link className="article-cat" href={localePath(locale, `/${category.slug}`)}>
-              {category.name}
-            </Link>
-          )}
+          <div className="article-kicker">
+            {category && (
+              <Link className="article-cat" href={localePath(locale, `/${category.slug}`)}>
+                {category.name}
+              </Link>
+            )}
+            {article.sponsored && <span className="sponsored-tag">{t(locale, 'sponsored')}</span>}
+            {article.premium && <span className="premium-tag">{t(locale, 'premiumBadge')}</span>}
+            {article.isLive && <span className="live-badge">● {t(locale, 'liveBadge')}</span>}
+          </div>
           <h1 className="article-title">{article.title}</h1>
           {article.excerpt && <p className="article-excerpt">{article.excerpt}</p>}
           <div className="article-meta">
@@ -87,7 +96,32 @@ export async function ArticleView({
               {hero.alt && <figcaption>{hero.alt}</figcaption>}
             </figure>
           )}
-          <ArticleBody content={article.content} />
+          {article.isLive && (article.liveUpdates?.length ?? 0) > 0 && (
+            <section className="live-updates">
+              <h2 className="section-title">{t(locale, 'liveUpdates')}</h2>
+              {[...(article.liveUpdates ?? [])].reverse().map((u) => (
+                <div key={u.id} className="live-update">
+                  <time className="live-time" dateTime={u.time || undefined}>
+                    {formatDateTime(locale, u.time)}
+                  </time>
+                  {u.title && <h3 className="live-title">{u.title}</h3>}
+                  <p className="live-body">{u.body}</p>
+                </div>
+              ))}
+            </section>
+          )}
+
+          <PaywallGate
+            articleId={article.id}
+            premium={Boolean(article.premium)}
+            labels={{
+              title: t(locale, 'paywallTitle'),
+              text: t(locale, 'paywallText'),
+              cta: t(locale, 'subscribeCta'),
+            }}
+          >
+            <ArticleBody content={article.content} />
+          </PaywallGate>
 
           <AdSlot slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE} className="ad-inarticle" />
 
@@ -118,6 +152,8 @@ export async function ArticleView({
             </div>
           </section>
         )}
+
+        <Comments locale={locale} articleId={article.id} />
       </main>
     </>
   )
