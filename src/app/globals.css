@@ -127,9 +127,24 @@ a:hover {
   font-weight: 800;
   font-size: 1.55rem;
   letter-spacing: -0.02em;
+  display: inline-flex;
+  align-items: center;
 }
 .brand span {
   color: var(--accent);
+}
+.brand-logo {
+  height: 52px;
+  width: auto;
+  display: block;
+}
+.footer-logo {
+  height: 44px;
+}
+@media (max-width: 760px) {
+  .brand-logo {
+    height: 42px;
+  }
 }
 .sections {
   display: flex;

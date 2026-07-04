@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 
 import { t } from '@/lib/i18n'
@@ -32,8 +33,15 @@ export async function SiteHeader({
       )}
       <header className="site-header">
         <div className="container header-inner">
-          <Link href={localePath(locale, '/')} className="brand">
-            News<span>Today</span>
+          <Link href={localePath(locale, '/')} className="brand" aria-label="News Today Malayalam">
+            <Image
+              src="/logo.png"
+              alt="News Today Malayalam"
+              width={413}
+              height={220}
+              priority
+              className="brand-logo"
+            />
           </Link>
           <nav className="sections" aria-label="Sections">
             {categories.map((c) => (
