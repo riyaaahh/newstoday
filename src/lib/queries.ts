@@ -274,6 +274,34 @@ export async function getMostRead(locale: Locale, limit = 5): Promise<Article[]>
   return docs
 }
 
+// ---------- Static params (for ISR of dynamic routes) ----------
+
+/** Recent published articles as { category, slug } for generateStaticParams. */
+export async function articleParams(locale: Locale): Promise<{ category: string; slug: string }[]> {
+  const payload = await getClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    where: { _status: { equals: 'published' } },
+    locale,
+    depth: 1,
+    limit: 200,
+    sort: '-publishedAt',
+  })
+  const out: { category: string; slug: string }[] = []
+  for (const a of docs) {
+    const cat = typeof a.category === 'object' ? a.category : null
+    if (cat?.slug && a.slug) out.push({ category: cat.slug, slug: a.slug })
+  }
+  return out
+}
+
+/** Categories as { category } for generateStaticParams. */
+export async function categoryParams(locale: Locale): Promise<{ category: string }[]> {
+  const payload = await getClient()
+  const { docs } = await payload.find({ collection: 'categories', locale, limit: 100, depth: 0 })
+  return docs.filter((c) => c.slug).map((c) => ({ category: c.slug }))
+}
+
 // ---------- Redirects ----------
 
 export async function getRedirect(

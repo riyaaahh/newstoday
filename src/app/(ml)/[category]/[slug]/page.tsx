@@ -1,7 +1,12 @@
 import { articleMetadata } from '@/lib/metadata'
+import { articleParams } from '@/lib/queries'
 import { ArticleView } from '@/views/ArticleView'
 
 export const revalidate = 60
+
+export function generateStaticParams() {
+  return articleParams('ml')
+}
 
 export async function generateMetadata({
   params,
