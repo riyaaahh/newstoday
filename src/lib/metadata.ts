@@ -14,7 +14,7 @@ import {
 import { buildAlternates } from './seo'
 
 const SITE_NAME = 'NewsToday'
-const DEFAULT_OG = '/og'
+const DEFAULT_OG = '/og.png'
 
 const mediaUrl = (m: unknown): string | undefined =>
   typeof m === 'object' && m !== null && 'url' in m && typeof (m as { url?: string }).url === 'string'

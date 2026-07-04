@@ -93,17 +93,16 @@ export async function ArticleView({
               <time dateTime={article.publishedAt}>{formatDate(locale, article.publishedAt)}</time>
             )}
           </div>
-          {article.videoUrl ? (
+          {hero && (
+            <figure className="article-hero">
+              <MediaImage media={hero} sizes="(max-width: 800px) 100vw, 800px" priority />
+              {hero.alt && <figcaption>{hero.alt}</figcaption>}
+            </figure>
+          )}
+          {article.videoUrl && (
             <div className="article-video">
               <EmbedBlock url={article.videoUrl} />
             </div>
-          ) : (
-            hero && (
-              <figure className="article-hero">
-                <MediaImage media={hero} sizes="(max-width: 800px) 100vw, 800px" priority />
-                {hero.alt && <figcaption>{hero.alt}</figcaption>}
-              </figure>
-            )
           )}
           {article.isLive && (article.liveUpdates?.length ?? 0) > 0 && (
             <section className="live-updates">
