@@ -10,7 +10,7 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "db:start": "tsx scripts/start-postgres.ts",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
-    "generate:importmap": "cross-env BLOB_READ_WRITE_TOKEN=importmap NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:importmap": "cross-env BLOB_READ_WRITE_TOKEN=vercel_blob_rw_importmap_0000000000000000000000000000 NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
