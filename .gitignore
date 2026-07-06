@@ -19,6 +19,9 @@
 # production
 /build
 
+# local postgres (embedded-postgres)
+.pgdata
+
 # misc
 .DS_Store
 *.pem

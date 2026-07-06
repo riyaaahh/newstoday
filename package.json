@@ -8,6 +8,7 @@
   "scripts": {
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "db:start": "tsx scripts/start-postgres.ts",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "generate:importmap": "cross-env BLOB_READ_WRITE_TOKEN=importmap NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
@@ -44,6 +45,7 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@types/web-push": "^3.6.4",
+    "embedded-postgres": "^18.4.0-beta.17",
     "eslint": "^9.16.0",
     "eslint-config-next": "16.2.7",
     "prettier": "^3.4.2",
