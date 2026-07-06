@@ -68,18 +68,17 @@ export default buildConfig({
   }),
   // Media persists to Vercel Blob in production (ephemeral FS on serverless);
   // falls back to local disk in dev when BLOB_READ_WRITE_TOKEN is unset.
-  plugins: process.env.BLOB_READ_WRITE_TOKEN
-    ? [
-        vercelBlobStorage({
-          enabled: true,
-          collections: { media: true },
-          token: process.env.BLOB_READ_WRITE_TOKEN,
-          // Upload straight from the browser to Blob so images aren't capped by
-          // Vercel's ~4.5 MB serverless request-body limit.
-          clientUploads: true,
-        }),
-      ]
-    : [],
+  plugins: [
+    vercelBlobStorage({
+      enabled: true,
+      collections: {
+        media: true,
+      },
+      clientUploads: true,
+    }),
+  ],
+
+   
   sharp,
   localization: {
     locales: [
