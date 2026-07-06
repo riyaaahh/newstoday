@@ -1,5 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "buildCommand": "pnpm payload migrate && pnpm build"
+  "buildCommand": "pnpm exec tsx scripts/migrate-ci.ts && pnpm build"
 }
