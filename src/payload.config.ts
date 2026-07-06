@@ -68,17 +68,16 @@ export default buildConfig({
   }),
   // Media persists to Vercel Blob in production (ephemeral FS on serverless);
   // falls back to local disk in dev when BLOB_READ_WRITE_TOKEN is unset.
-  plugins: [
-    vercelBlobStorage({
-      enabled: true,
-      collections: {
-        media: true,
-      },
-      clientUploads: true,
-    }),
-  ],
-
-   
+  plugins: process.env.BLOB_READ_WRITE_TOKEN
+    ? [
+        vercelBlobStorage({
+          enabled: true,
+          collections: { media: true },
+          token: process.env.BLOB_READ_WRITE_TOKEN,
+          clientUploads: true,
+        }),
+      ]
+    : [],
   sharp,
   localization: {
     locales: [
