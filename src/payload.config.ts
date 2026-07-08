@@ -20,11 +20,9 @@ import { EmbedBlock } from './blocks/Embed'
 import { Homepage } from './globals/Homepage'
 import {
   BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
-  resolveBlobAccess,
   resolveBlobToken,
 } from './lib/blob'
 import { SITE_URL } from './lib/locale'
-import { disableBlobClientUploads } from './plugins/disableBlobClientUploads'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -33,6 +31,7 @@ const blobToken = resolveBlobToken()
 
 export default buildConfig({
   serverURL: SITE_URL,
+  debug: process.env.PAYLOAD_DEBUG === 'true',
   admin: {
     user: Users.slug,
     importMap: {
@@ -77,16 +76,18 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   plugins: [
+    // Payload's Vercel Blob adapter only supports public stores. Use client uploads
+    // so files bypass Vercel's 4.5 MB serverless request-body limit.
     vercelBlobStorage({
       enabled: Boolean(blobToken),
-      // Plugin types only list 'public'; runtime supports 'private' for private Blob stores.
-      access: resolveBlobAccess() as 'public',
+      access: 'public',
       addRandomSuffix: true,
-      collections: { media: true },
+      clientUploads: true,
+      collections: {
+        media: { disablePayloadAccessControl: true },
+      },
       token: blobToken ?? BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
-      clientUploads: false,
     }),
-    disableBlobClientUploads,
   ],
   sharp,
   localization: {
