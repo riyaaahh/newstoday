@@ -18,7 +18,11 @@ import { Comments } from './collections/Comments'
 import { Redirects } from './collections/Redirects'
 import { EmbedBlock } from './blocks/Embed'
 import { Homepage } from './globals/Homepage'
-import { BLOB_TOKEN_IMPORTMAP_PLACEHOLDER, resolveBlobToken } from './lib/blob'
+import {
+  BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
+  resolveBlobAccess,
+  resolveBlobToken,
+} from './lib/blob'
 import { SITE_URL } from './lib/locale'
 import { disableBlobClientUploads } from './plugins/disableBlobClientUploads'
 
@@ -75,7 +79,8 @@ export default buildConfig({
   plugins: [
     vercelBlobStorage({
       enabled: Boolean(blobToken),
-      access: 'public',
+      // Plugin types only list 'public'; runtime supports 'private' for private Blob stores.
+      access: resolveBlobAccess() as 'public',
       addRandomSuffix: true,
       collections: { media: true },
       token: blobToken ?? BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,

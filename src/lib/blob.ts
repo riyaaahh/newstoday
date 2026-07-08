@@ -4,6 +4,15 @@ export const BLOB_TOKEN_IMPORTMAP_PLACEHOLDER =
 
 const PLACEHOLDER_MARKERS = ['buildtimegen', 'importmap'] as const
 
+/** Must match the Blob store type — private stores reject put({ access: 'public' }). */
+export function resolveBlobAccess(): 'public' | 'private' {
+  if (process.env.BLOB_ACCESS === 'public') return 'public'
+  if (process.env.BLOB_ACCESS === 'private') return 'private'
+  // New Vercel Blob stores default to private.
+  if (process.env.VERCEL) return 'private'
+  return 'public'
+}
+
 /** Real Vercel Blob token from Storage → Blob, or undefined when uploads use local disk. */
 export function resolveBlobToken(): string | undefined {
   const token = process.env.BLOB_READ_WRITE_TOKEN
