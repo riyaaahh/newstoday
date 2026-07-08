@@ -23,6 +23,7 @@ import {
   resolveBlobToken,
 } from './lib/blob'
 import { SITE_URL } from './lib/locale'
+import { disableBlobClientUploads } from './plugins/disableBlobClientUploads'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -76,18 +77,16 @@ export default buildConfig({
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   plugins: [
-    // Payload's Vercel Blob adapter only supports public stores. Use client uploads
-    // so files bypass Vercel's 4.5 MB serverless request-body limit.
     vercelBlobStorage({
       enabled: Boolean(blobToken),
       access: 'public',
       addRandomSuffix: true,
-      clientUploads: true,
-      collections: {
-        media: { disablePayloadAccessControl: true },
-      },
+      collections: { media: true },
       token: blobToken ?? BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
+      // Server-side uploads only. This avoids browser calls to vercel.com/api/blob (CORS).
+      clientUploads: false,
     }),
+    disableBlobClientUploads,
   ],
   sharp,
   localization: {
