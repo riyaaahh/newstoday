@@ -75,6 +75,7 @@ export default buildConfig({
   plugins: [
     vercelBlobStorage({
       enabled: Boolean(blobToken),
+      access: 'public',
       addRandomSuffix: true,
       collections: { media: true },
       token: blobToken ?? BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,

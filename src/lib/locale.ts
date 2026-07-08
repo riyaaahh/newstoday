@@ -23,7 +23,13 @@ export const localePath = (l: Locale, path = '/'): string => {
 /** Canonical public origin — used by Payload admin, metadata, and Blob client-upload callbacks. */
 function resolveSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
-  if (explicit) return explicit
+  const localhostOnVercel =
+    process.env.VERCEL &&
+    explicit &&
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(explicit)
+
+  // A copied localhost URL on Vercel breaks Payload CSRF/cookie auth → 403 on /api/media.
+  if (explicit && !localhostOnVercel) return explicit
 
   if (process.env.VERCEL_ENV === 'production' && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
     return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`.replace(/\/$/, '')
