@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
         pathname: '/logo.png',
       },
     ],
+    // Media is served from Vercel Blob in production; allow those hosts so
+    // next/image can optimize hero, card, and inline article images.
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.public.blob.vercel-storage.com',
+      },
+    ],
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

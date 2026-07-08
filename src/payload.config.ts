@@ -18,11 +18,17 @@ import { Comments } from './collections/Comments'
 import { Redirects } from './collections/Redirects'
 import { EmbedBlock } from './blocks/Embed'
 import { Homepage } from './globals/Homepage'
+import { BLOB_TOKEN_IMPORTMAP_PLACEHOLDER, resolveBlobToken } from './lib/blob'
+import { SITE_URL } from './lib/locale'
+import { patchVercelBlobClientUpload } from './plugins/vercelBlobClientUpload'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const blobToken = resolveBlobToken()
+
 export default buildConfig({
+  serverURL: SITE_URL,
   admin: {
     user: Users.slug,
     importMap: {
@@ -66,18 +72,23 @@ export default buildConfig({
     },
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
-  // Media persists to Vercel Blob in production (ephemeral FS on serverless);
-  // falls back to local disk in dev when BLOB_READ_WRITE_TOKEN is unset.
-  plugins: process.env.BLOB_READ_WRITE_TOKEN
-    ? [
-        vercelBlobStorage({
-          enabled: true,
-          collections: { media: true },
-          token: process.env.BLOB_READ_WRITE_TOKEN,
-          clientUploads: true,
-        }),
-      ]
-    : [],
+  // Always register the Blob plugin so the admin import map matches runtime.
+  // Without a real token it stays disabled and media uses local disk in dev.
+  plugins: [
+    vercelBlobStorage({
+      enabled: Boolean(blobToken),
+      collections: { media: true },
+      token: blobToken ?? BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
+      clientUploads: Boolean(blobToken),
+    }),
+    ...(blobToken
+      ? [
+          patchVercelBlobClientUpload({
+            token: blobToken,
+          }),
+        ]
+      : []),
+  ],
   sharp,
   localization: {
     locales: [

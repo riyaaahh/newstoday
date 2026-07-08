@@ -68,7 +68,8 @@ DB schema is applied automatically at build (the initial migration is committed 
    ephemeral); with it, media persists to Blob automatically.
 3. **Set env vars** (Project → Settings → Environment Variables):
    - Required: `DATABASE_URL` (pooled), `PAYLOAD_SECRET` (`openssl rand -hex 32`),
-     `NEXT_PUBLIC_SITE_URL` (your domain), `BLOB_READ_WRITE_TOKEN`.
+     `NEXT_PUBLIC_SITE_URL` (e.g. `https://newstoday-ecru.vercel.app` — must match the
+     live domain for Payload admin and Blob client uploads), `BLOB_READ_WRITE_TOKEN`.
    - Optional: `SMTP_*` + `EMAIL_FROM`, `NEXT_PUBLIC_GA_ID`,
      `NEXT_PUBLIC_ADSENSE_CLIENT` + slot ids, `VAPID_*` +
      `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `SENTRY_DSN` + `NEXT_PUBLIC_SENTRY_DSN`.

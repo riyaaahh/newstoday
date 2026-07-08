@@ -310,6 +310,19 @@ a:hover {
   height: auto;
   border-radius: 8px;
 }
+.article-inline-image {
+  margin: 24px 0;
+}
+.article-inline-image img {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.article-inline-image figcaption {
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding-top: 8px;
+}
 
 /* Video cards */
 .video-thumb {

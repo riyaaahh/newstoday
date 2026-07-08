@@ -14,7 +14,7 @@ import { ShareButtons } from '@/components/ShareButtons'
 import { SiteHeader } from '@/components/SiteHeader'
 import { VideoObjectJsonLd } from '@/components/VideoObjectJsonLd'
 import { ViewBeacon } from '@/components/ViewBeacon'
-import { formatDate, formatDateTime, t } from '@/lib/i18n'
+import { articleCoverImage } from '@/lib/articleMedia'
 import { absoluteUrl, localePath, otherLocale, type Locale } from '@/lib/locale'
 import { applyRedirect } from '@/lib/redirects'
 import {
@@ -23,7 +23,7 @@ import {
   getCategories,
   getRelatedArticles,
 } from '@/lib/queries'
-import type { Category, Media, Tag, User } from '@/payload-types'
+import type { Category, Tag, User } from '@/payload-types'
 
 export async function ArticleView({
   locale,
@@ -47,7 +47,8 @@ export async function ArticleView({
   ])
   const other = otherLocale(locale)
   const category = typeof article.category === 'object' ? (article.category as Category) : null
-  const hero = typeof article.heroImage === 'object' ? (article.heroImage as Media) : null
+  const cover = articleCoverImage(article)
+  const hero = typeof cover === 'object' ? cover : null
   const path = `/${categorySlug}/${slug}`
   const authors = (article.authors ?? []).filter(
     (a): a is User => typeof a === 'object' && a !== null,

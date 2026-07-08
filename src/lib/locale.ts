@@ -20,6 +20,22 @@ export const localePath = (l: Locale, path = '/'): string => {
   return `${prefix}${path.startsWith('/') ? '' : '/'}${path}`
 }
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3210').replace(/\/$/, '')
+/** Canonical public origin — used by Payload admin, metadata, and Blob client-upload callbacks. */
+function resolveSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
+  if (explicit) return explicit
+
+  if (process.env.VERCEL_ENV === 'production' && process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`.replace(/\/$/, '')
+  }
+
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`.replace(/\/$/, '')
+  }
+
+  return 'http://localhost:3000'
+}
+
+export const SITE_URL = resolveSiteUrl()
 
 export const absoluteUrl = (path: string): string => `${SITE_URL}${path.startsWith('/') ? '' : '/'}${path}`

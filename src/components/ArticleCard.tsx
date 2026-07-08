@@ -1,5 +1,6 @@
 import Link from 'next/link'
 
+import { articleCoverImage } from '@/lib/articleMedia'
 import { formatDate, t } from '@/lib/i18n'
 import { localePath, type Locale } from '@/lib/locale'
 import type { Article, Category } from '@/payload-types'
@@ -23,7 +24,7 @@ export function ArticleCard({
     <article className={isLead ? 'card card-lead' : 'card'}>
       <Link href={href} className="card-media" aria-label={article.title}>
         <MediaImage
-          media={article.heroImage}
+          media={articleCoverImage(article)}
           sizes={isLead ? '100vw' : '(max-width: 700px) 100vw, 33vw'}
           priority={isLead}
         />
