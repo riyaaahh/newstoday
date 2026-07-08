@@ -20,6 +20,7 @@ import { EmbedBlock } from './blocks/Embed'
 import { Homepage } from './globals/Homepage'
 import { BLOB_TOKEN_IMPORTMAP_PLACEHOLDER, resolveBlobToken } from './lib/blob'
 import { SITE_URL } from './lib/locale'
+import { disableBlobClientUploads } from './plugins/disableBlobClientUploads'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -71,18 +72,15 @@ export default buildConfig({
     },
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
-  // Always register the Blob plugin so the admin import map matches runtime.
-  // Without a real token it stays disabled and media uses local disk in dev.
-  // Server-side uploads only: clientUploads triggers browser PUTs to vercel.com/api/blob
-  // which fail with 400/CORS when the Blob store token and project URL are misaligned.
-  // Images under 4.5 MB upload fine server-side on Vercel.
   plugins: [
     vercelBlobStorage({
       enabled: Boolean(blobToken),
+      addRandomSuffix: true,
       collections: { media: true },
       token: blobToken ?? BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
       clientUploads: false,
     }),
+    disableBlobClientUploads,
   ],
   sharp,
   localization: {

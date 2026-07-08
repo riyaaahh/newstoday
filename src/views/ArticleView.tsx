@@ -15,6 +15,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { VideoObjectJsonLd } from '@/components/VideoObjectJsonLd'
 import { ViewBeacon } from '@/components/ViewBeacon'
 import { articleCoverImage } from '@/lib/articleMedia'
+import { formatDate, formatDateTime, t } from '@/lib/i18n'
 import { absoluteUrl, localePath, otherLocale, type Locale } from '@/lib/locale'
 import { applyRedirect } from '@/lib/redirects'
 import {
