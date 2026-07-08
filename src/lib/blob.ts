@@ -4,6 +4,18 @@ export const BLOB_TOKEN_IMPORTMAP_PLACEHOLDER =
 
 const PLACEHOLDER_MARKERS = ['buildtimegen', 'importmap'] as const
 
+/**
+ * Must match the Blob store type in Vercel.
+ * New stores default to private; Payload types only list `public`, but the SDK accepts `private`.
+ */
+export function resolveBlobAccess(): 'public' | 'private' {
+  if (process.env.BLOB_ACCESS === 'public') return 'public'
+  if (process.env.BLOB_ACCESS === 'private') return 'private'
+  // Connected stores on Vercel are currently private for this project.
+  if (process.env.VERCEL) return 'private'
+  return 'public'
+}
+
 /** Real Vercel Blob token from Storage → Blob, or undefined when uploads use local disk. */
 export function resolveBlobToken(): string | undefined {
   const token = process.env.BLOB_READ_WRITE_TOKEN

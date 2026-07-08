@@ -20,10 +20,12 @@ import { EmbedBlock } from './blocks/Embed'
 import { Homepage } from './globals/Homepage'
 import {
   BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
+  resolveBlobAccess,
   resolveBlobToken,
 } from './lib/blob'
 import { SITE_URL } from './lib/locale'
 import { disableBlobClientUploads } from './plugins/disableBlobClientUploads'
+import { privateBlobStaticHandler } from './plugins/privateBlobStaticHandler'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -79,14 +81,17 @@ export default buildConfig({
   plugins: [
     vercelBlobStorage({
       enabled: Boolean(blobToken),
-      access: 'public',
+      // Your connected store is private; public put() throws at runtime.
+      access: resolveBlobAccess() as 'public',
       addRandomSuffix: true,
       collections: { media: true },
       token: blobToken ?? BLOB_TOKEN_IMPORTMAP_PLACEHOLDER,
-      // Server-side uploads only. This avoids browser calls to vercel.com/api/blob (CORS).
+      // Server-side uploads only — avoids browser CORS to vercel.com/api/blob.
       clientUploads: false,
     }),
     disableBlobClientUploads,
+    // Authenticated private-blob file streaming for /api/media/file/*
+    privateBlobStaticHandler,
   ],
   sharp,
   localization: {
