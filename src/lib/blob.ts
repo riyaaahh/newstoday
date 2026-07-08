@@ -12,6 +12,9 @@ export function resolveBlobToken(): string | undefined {
   const isPlaceholder = PLACEHOLDER_MARKERS.some((marker) => token.includes(marker))
   if (!isPlaceholder) return token
 
+  // Import-map generation only needs the plugin shape; no real Blob uploads occur.
+  if (process.env.PAYLOAD_GENERATE_IMPORTMAP === 'true') return token
+
   if (process.env.VERCEL === '1') {
     throw new Error(
       'BLOB_READ_WRITE_TOKEN is a placeholder, not a real Vercel Blob token. ' +
@@ -20,6 +23,6 @@ export function resolveBlobToken(): string | undefined {
     )
   }
 
-  // Local import-map generation needs the plugin enabled; dev without Blob uses local disk.
-  return process.env.PAYLOAD_GENERATE_IMPORTMAP === 'true' ? token : undefined
+  // Dev without Blob uses local disk.
+  return undefined
 }
